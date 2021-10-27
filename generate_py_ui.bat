@@ -1,0 +1,1 @@
+pyuic5 cpp_gui.ui -o cpp_gui.py
