@@ -21,10 +21,59 @@ class ExampleApp(QtWidgets.QMainWindow, cpp_gui.Ui_MainWindow):
 		self.btnCalculatePath.clicked.connect(self.sendPath)
 		self.btnRectPath.clicked.connect(self.sendRect)
 
-		self.actionSave.triggered.connect(self.gridFrame.saveData)
-		self.actiontest_path.triggered.connect(self.gridFrame.testLoad)
+		self.actionSave.triggered.connect(self.fileSave)
+		self.actionSave_as.triggered.connect(self.fileSaveAs)
+		self.actionOpen.triggered.connect(self.fileOpen)
+		self.actionNew.triggered.connect(self.fileNew)
 
 		self.status_timeout = 5000
+
+		self.cur_file = 'untitled.grid'
+		self.saved = True
+
+		self.title = 'OmniGPR Control - '
+		self.setWindowTitle(self.title + self.cur_file)
+
+		self.gridFrame.edited.connect(self.gridUpdated)
+
+	def fileNew(self):
+		self.cur_file = 'untitled.grid'
+		self.saved = True
+		self.gridFrame.newGrid()
+		self.setWindowTitle(self.title + self.cur_file)
+
+	def fileOpen(self):
+		fp = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File', self.cur_file, self.tr('Grid Data (*.grid)'))
+		if fp == '':
+			return
+
+		self.gridFrame.loadData(fp[0])
+		self.cur_file = fp[0]
+		self.saved = True
+		self.setWindowTitle(self.title + self.cur_file)
+
+	def fileSave(self):
+		if self.cur_file == 'untitled.grid':
+			self.fileSaveAs()
+		else:
+			self.gridFrame.saveData(self.cur_file)
+			self.saved = True
+
+		self.setWindowTitle(self.title + self.cur_file)
+
+	def fileSaveAs(self):
+		fp = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File', self.cur_file, self.tr('Grid Data (*.grid)'))
+		if fp == '':
+			return
+		
+		self.gridFrame.saveData(fp[0])
+		self.cur_file = fp[0]
+		self.saved = True
+		self.setWindowTitle(self.title + self.cur_file)
+
+	def gridUpdated(self):
+		self.saved = False
+		self.setWindowTitle(self.title + self.cur_file + '*')
 
 	def calculatePath(self):
 		graph = self.gridFrame.getGraph()
