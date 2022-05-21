@@ -1,3 +1,4 @@
+from time import time
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 
@@ -110,29 +111,43 @@ class GridFrame(QtWidgets.QFrame):
 			d = move[1] - move[0]
 
 			if d == direction:
-				moves[-1][1] += 1
+				moves[-1]["dist"] += 1
 			else:
 				direction = d
-				moves.append([d, 1])
+				moves.append({"dir":d, "dist":1})
 
 		for m in moves:
-			if m[0] == Vec2D(1, 0):
-				m[0] = "right"
+			if m["dir"] == Vec2D(1, 0):
+				m["dir"] = "right"
 
-			elif m[0] == Vec2D(0, 1):
-				m[0] = "down"
+			elif m["dir"] == Vec2D(0, 1):
+				m["dir"] = "backward"
 
-			elif m[0] == Vec2D(-1, 0):
-				m[0] = "left"
+			elif m["dir"] == Vec2D(-1, 0):
+				m["dir"] = "left"
 
-			elif m[0] == Vec2D(0, -1):
-				m[0] = "up"
+			elif m["dir"] == Vec2D(0, -1):
+				m["dir"] = "forward"
 
-		data = {"id":117, "command":"move", "path":moves}
-		try:
-			r = requests.post("http://127.0.0.1:5000/talk", data = json.dumps(data), headers={"Content-Type": "application/json"})
-		except:
-			print("failed to send command to robot, check connection and try again")
+		return moves
+
+	def sendRect(self):
+		print(self.rect_width)
+		print(self.rect_length)
+		print(self.cell_resolution)
+		print(self.ip_addr)
+
+	def setRectWidth(self, w):
+		self.rect_width = w
+
+	def setRectLength(self, l):
+		self.rect_length = l
+
+	def setCellResolution(self, res):
+		self.cell_resolution = res
+
+	def setIP(self, ip_str):
+		self.ip_addr = ip_str
 
 	def setStateDraw(self):
 		self.ctrl_state = CtrlState.DRAW
@@ -142,6 +157,11 @@ class GridFrame(QtWidgets.QFrame):
 
 	def setStateStartPoint(self):
 		self.ctrl_state = CtrlState.START_POINT
+
+	def clearGrid(self):
+		self.grid_data = set()
+		self.start_point = None
+		self.update()
 
 	def screenToGrid(self, x, y):
 		px = (x - self.grid_pos.getX()) // self.BOX_SIZE
