@@ -1,8 +1,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication
+
 import sys
 import cpp_gui
 import requests
+
+import dfs_path
+from vec2d import Vec2D
 
 class ExampleApp(QtWidgets.QMainWindow, cpp_gui.Ui_MainWindow):
 	def __init__(self, parent=None):
@@ -22,6 +26,38 @@ class ExampleApp(QtWidgets.QMainWindow, cpp_gui.Ui_MainWindow):
 
 		self.status_timeout = 5000
 
+	def calculatePath(self):
+		graph = self.gridFrame.getGraph()
+		road_used = dfs_path.dfs(self.gridFrame.getStartPoint(), graph[0], graph[1])
+
+		moves = []
+
+		direction = Vec2D(0, 0)
+
+		for move in road_used[1:]:
+			d = move[1] - move[0]
+
+			if d == direction:
+				moves[-1]["dist"] += 1
+			else:
+				direction = d
+				moves.append({"dir":d, "dist":1})
+
+		for m in moves:
+			if m["dir"] == Vec2D(1, 0):
+				m["dir"] = "right"
+
+			elif m["dir"] == Vec2D(0, 1):
+				m["dir"] = "backward"
+
+			elif m["dir"] == Vec2D(-1, 0):
+				m["dir"] = "left"
+
+			elif m["dir"] == Vec2D(0, -1):
+				m["dir"] = "forward"
+
+		return moves
+
 	def sendRect(self):
 		data = {"id":117, "width":self.sbWidth.value(), "length":self.sbLength.value(), "resolution":self.sbCellResolution.value()}
 
@@ -36,7 +72,7 @@ class ExampleApp(QtWidgets.QMainWindow, cpp_gui.Ui_MainWindow):
 
 	def sendPath(self):
 		try:
-			moves = self.gridFrame.calculatePath()
+			moves = self.calculatePath()
 		except:
 			self.statusbar.showMessage("ERROR: No start point set.", self.status_timeout)
 			return

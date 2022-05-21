@@ -1,16 +1,12 @@
 from time import time
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 
 from enum import Enum
 import math
 import pickle
 
-import dfs_path
 from vec2d import Vec2D
-
-import requests
-import json
 
 class CtrlState(Enum):
 	DRAW = 1
@@ -99,37 +95,8 @@ class GridFrame(QtWidgets.QFrame):
 
 		return(nodes, adj)
 
-	def calculatePath(self):
-		graph = self.getGraph()
-		road_used = dfs_path.dfs(self.start_point, graph[0], graph[1])
-
-		moves = []
-
-		direction = Vec2D(0, 0)
-
-		for move in road_used[1:]:
-			d = move[1] - move[0]
-
-			if d == direction:
-				moves[-1]["dist"] += 1
-			else:
-				direction = d
-				moves.append({"dir":d, "dist":1})
-
-		for m in moves:
-			if m["dir"] == Vec2D(1, 0):
-				m["dir"] = "right"
-
-			elif m["dir"] == Vec2D(0, 1):
-				m["dir"] = "backward"
-
-			elif m["dir"] == Vec2D(-1, 0):
-				m["dir"] = "left"
-
-			elif m["dir"] == Vec2D(0, -1):
-				m["dir"] = "forward"
-
-		return moves
+	def getStartPoint(self):
+		Vec2D(self.start_point.getX(), self.start_point.getY())
 
 	def setStateDraw(self):
 		self.ctrl_state = CtrlState.DRAW
