@@ -270,7 +270,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>26</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -299,12 +299,7 @@
     <addaction name="actionDraw"/>
     <addaction name="actionErase"/>
     <addaction name="actionSet_Start_Point"/>
-   </widget>
-   <widget class="QMenu" name="menuSetting">
-    <property name="title">
-     <string>Settings</string>
-    </property>
-    <addaction name="actionPrefrences"/>
+    <addaction name="actionClear_Grid"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -314,7 +309,6 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
-   <addaction name="menuSetting"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar">
@@ -380,6 +374,11 @@
   <action name="actiontest_path">
    <property name="text">
     <string>test.path</string>
+   </property>
+  </action>
+  <action name="actionClear_Grid">
+   <property name="text">
+    <string>Clear Grid</string>
    </property>
   </action>
  </widget>
