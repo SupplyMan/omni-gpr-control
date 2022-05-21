@@ -1,1 +1,1 @@
-pyuic5 cpp_gui.ui -o cpp_gui.py
+pyuic5 ogpr_gui.ui -o ogpr_gui.py
