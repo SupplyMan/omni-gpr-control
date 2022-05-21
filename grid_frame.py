@@ -1,5 +1,5 @@
 from time import time
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 
 from enum import Enum
@@ -14,6 +14,8 @@ class CtrlState(Enum):
 	START_POINT = 3
 
 class GridFrame(QtWidgets.QFrame):
+	edited = QtCore.pyqtSignal()
+
 	BOX_SIZE = 30
 
 	def __init__(self, *args, **kwargs):
@@ -29,11 +31,10 @@ class GridFrame(QtWidgets.QFrame):
 
 		self.zoom = 1.0
 
-	def testLoad(self):
-		self.loadData("test.path")
+		self.cur_saved = True
 
-	def loadData(self, file_name):
-		with open(file_name, "rb") as f:
+	def loadData(self, file_path):
+		with open(file_path, "rb") as f:
 			self.grid_pos = pickle.load(f)
 			self.drag_pos = pickle.load(f)
 			self.grid_data = pickle.load(f)
@@ -42,8 +43,8 @@ class GridFrame(QtWidgets.QFrame):
 
 		self.update()
 
-	def saveData(self):
-		with open("test.path", "wb") as f:
+	def saveData(self, file_path):
+		with open(file_path, "wb") as f:
 			pickle.dump(self.grid_pos, f)
 			pickle.dump(self.drag_pos, f)
 			pickle.dump(self.grid_data, f)
@@ -107,10 +108,14 @@ class GridFrame(QtWidgets.QFrame):
 	def setStateStartPoint(self):
 		self.ctrl_state = CtrlState.START_POINT
 
-	def clearGrid(self):
+	def newGrid(self):
 		self.grid_data = set()
 		self.start_point = None
 		self.update()
+
+	def clearGrid(self):
+		self.newGrid()
+		self.edited.emit()
 
 	def screenToGrid(self, x, y):
 		px = (x - self.grid_pos.getX()) // self.BOX_SIZE
@@ -166,20 +171,28 @@ class GridFrame(QtWidgets.QFrame):
 	def leftMouseButtonEvent(self, e):
 		p = self.screenToGrid(e.x(), e.y())
 
+		changed = False
+
 		if self.ctrl_state == CtrlState.DRAW:
 			self.grid_data.add(p)
+			changed = True
 
 		elif self.ctrl_state == CtrlState.ERASE:
 			if p in self.grid_data:
 				self.grid_data.remove(p)
+				changed = True
 			
 			if self.start_point is not None and p == self.start_point:
 				self.start_point = None
+				changed = True
 
 		elif self.ctrl_state == CtrlState.START_POINT:
 			self.start_point = p
+			changed = True
 
-		self.update()
+		if changed:
+			self.edited.emit()
+			self.update()
 
 	def mouseMoveEvent(self, e):
 		if e.buttons() & Qt.RightButton:
