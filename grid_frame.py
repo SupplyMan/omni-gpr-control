@@ -131,24 +131,6 @@ class GridFrame(QtWidgets.QFrame):
 
 		return moves
 
-	def sendRect(self):
-		print(self.rect_width)
-		print(self.rect_length)
-		print(self.cell_resolution)
-		print(self.ip_addr)
-
-	def setRectWidth(self, w):
-		self.rect_width = w
-
-	def setRectLength(self, l):
-		self.rect_length = l
-
-	def setCellResolution(self, res):
-		self.cell_resolution = res
-
-	def setIP(self, ip_str):
-		self.ip_addr = ip_str
-
 	def setStateDraw(self):
 		self.ctrl_state = CtrlState.DRAW
 
@@ -257,4 +239,3 @@ class GridFrame(QtWidgets.QFrame):
 
 	def wheelEvent(self, e):
 		self.zoom = self.zoom * math.pow(0.95, e.angleDelta().y()/120)
-		print(self.zoom)
